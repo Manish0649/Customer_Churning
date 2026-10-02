@@ -1,0 +1,9 @@
+{
+  "customer_id": "C10291",
+  "tenure": 14,
+  "monthlycharges": 89.5,
+  "totalcharges": 1253.0,
+  "num_complaints": 3,
+  "num_service_calls": 5,
+  "customer_satisfaction": 4.0
+}

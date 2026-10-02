@@ -1,0 +1,1313 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Customer Churn and Retention API",
+    "description": "Predict churn, retrieve K-Means segments and generate rule-based retention recommendations. Optional customer attributes use saved training imputations. Training is offline. Monetary values use the source dataset's currency. Gradio is available at /ui. This local demo has no authentication.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Health",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Application running, model not ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-info": {
+      "get": {
+        "tags": [
+          "Model results"
+        ],
+        "summary": "Model Info",
+        "operationId": "getModelInfo",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelInfo"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Model artifact unavailable; export it and restart the server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict-churn": {
+      "post": {
+        "tags": [
+          "Model results"
+        ],
+        "summary": "Predict Churn",
+        "operationId": "predictChurn",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prediction"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid customer data or batch size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Model artifact unavailable; export it and restart the server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segment-customer": {
+      "post": {
+        "tags": [
+          "Model results"
+        ],
+        "summary": "Segment Customer",
+        "operationId": "segmentCustomer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Segment"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid customer data or batch size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Model artifact unavailable; export it and restart the server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recommend-retention": {
+      "post": {
+        "tags": [
+          "Retention"
+        ],
+        "summary": "Recommend Retention",
+        "description": "Apply retention rules to a supplied churn probability and customer. No classifier call.",
+        "operationId": "recommendRetention",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetentionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Retention"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid customer data or batch size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Model artifact unavailable; export it and restart the server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-strategy": {
+      "post": {
+        "tags": [
+          "Retention"
+        ],
+        "summary": "Customer Strategy",
+        "operationId": "getCustomerStrategy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Strategy"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid customer data or batch size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Model artifact unavailable; export it and restart the server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-strategy/batch": {
+      "post": {
+        "tags": [
+          "Retention"
+        ],
+        "summary": "Batch Strategy",
+        "description": "Score 1\u20131000 customers in input order; include campaign scenario ROI.",
+        "operationId": "getBatchStrategies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid customer data or batch size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Model artifact unavailable; export it and restart the server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BatchRequest": {
+        "properties": {
+          "customers": {
+            "items": {
+              "$ref": "#/components/schemas/Customer"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Customers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customers"
+        ],
+        "title": "BatchRequest"
+      },
+      "BatchResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/Strategy"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "risk_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Risk Distribution"
+          },
+          "segment_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Segment Distribution"
+          },
+          "high_value_high_risk_count": {
+            "type": "integer",
+            "title": "High Value High Risk Count"
+          },
+          "roi": {
+            "$ref": "#/components/schemas/RoiSummary"
+          },
+          "roi_note": {
+            "type": "string",
+            "title": "Roi Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "results",
+          "risk_distribution",
+          "segment_distribution",
+          "high_value_high_risk_count",
+          "roi",
+          "roi_note"
+        ],
+        "title": "BatchResponse"
+      },
+      "Customer": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Customer Id"
+          },
+          "tenure": {
+            "type": "integer",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Tenure"
+          },
+          "monthlycharges": {
+            "type": "number",
+            "maximum": 1000000000000.0,
+            "minimum": 0.0,
+            "title": "Monthlycharges"
+          },
+          "totalcharges": {
+            "type": "number",
+            "maximum": 1000000000000.0,
+            "minimum": 0.0,
+            "title": "Totalcharges"
+          },
+          "signup_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signup Date"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 120.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "annual_income": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Income"
+          },
+          "education": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Education"
+          },
+          "marital_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marital Status"
+          },
+          "dependents": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dependents"
+          },
+          "contract": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contract"
+          },
+          "payment_method": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Method"
+          },
+          "paperless_billing": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Yes",
+                  "No"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paperless Billing"
+          },
+          "senior_citizen": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Senior Citizen"
+          },
+          "num_services": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Services"
+          },
+          "has_phone_service": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Phone Service"
+          },
+          "has_internet_service": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Internet Service"
+          },
+          "has_online_security": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Online Security"
+          },
+          "has_online_backup": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Online Backup"
+          },
+          "has_device_protection": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Device Protection"
+          },
+          "has_tech_support": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Tech Support"
+          },
+          "has_streaming_tv": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Streaming Tv"
+          },
+          "has_streaming_movies": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Streaming Movies"
+          },
+          "customer_satisfaction": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Satisfaction"
+          },
+          "num_complaints": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Complaints"
+          },
+          "num_service_calls": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Service Calls"
+          },
+          "late_payments": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Late Payments"
+          },
+          "avg_monthly_gb": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Monthly Gb"
+          },
+          "days_since_last_interaction": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days Since Last Interaction"
+          },
+          "credit_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customer_id",
+          "tenure",
+          "monthlycharges",
+          "totalcharges"
+        ],
+        "title": "Customer",
+        "description": "Core fields are required. Omitted optional features use training imputations.\n\nAccepted aliases: monthly_charges, total_charges, complaints, service_calls.\nSupply only one spelling of each field. The training target is not an input.",
+        "examples": [
+          {
+            "customer_id": "C10291",
+            "customer_satisfaction": 4.0,
+            "monthlycharges": 89.5,
+            "num_complaints": 3,
+            "num_service_calls": 5,
+            "tenure": 14,
+            "totalcharges": 1253.0
+          }
+        ]
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "unavailable"
+            ],
+            "title": "Status"
+          },
+          "model_loaded": {
+            "type": "boolean",
+            "title": "Model Loaded"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "model_loaded",
+          "detail"
+        ],
+        "title": "Health"
+      },
+      "ModelInfo": {
+        "properties": {
+          "artifact_version": {
+            "type": "integer",
+            "title": "Artifact Version"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "trained_at": {
+            "type": "string",
+            "title": "Trained At"
+          },
+          "dataset_rows": {
+            "type": "integer",
+            "title": "Dataset Rows"
+          },
+          "sample_rows": {
+            "type": "integer",
+            "title": "Sample Rows"
+          },
+          "training_rows": {
+            "type": "integer",
+            "title": "Training Rows"
+          },
+          "holdout_rows": {
+            "type": "integer",
+            "title": "Holdout Rows"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "feature_importance": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Feature Importance"
+          },
+          "input_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Input Features"
+          },
+          "value_thresholds": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Value Thresholds"
+          },
+          "segment_profiles": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Segment Profiles"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "artifact_version",
+          "model_name",
+          "trained_at",
+          "dataset_rows",
+          "sample_rows",
+          "training_rows",
+          "holdout_rows",
+          "metrics",
+          "feature_importance",
+          "input_features",
+          "value_thresholds",
+          "segment_profiles",
+          "note"
+        ],
+        "title": "ModelInfo"
+      },
+      "Prediction": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "churn_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Churn Probability"
+          },
+          "predicted_churn": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "title": "Predicted Churn"
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Risk Level"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customer_id",
+          "churn_probability",
+          "predicted_churn",
+          "risk_level",
+          "model_name"
+        ],
+        "title": "Prediction"
+      },
+      "Retention": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "churn_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Churn Probability"
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Risk Level"
+          },
+          "customer_value": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Customer Value"
+          },
+          "recommended_action": {
+            "type": "string",
+            "title": "Recommended Action"
+          },
+          "recommended_reward": {
+            "type": "string",
+            "title": "Recommended Reward"
+          },
+          "reward_cost": {
+            "type": "number",
+            "title": "Reward Cost"
+          },
+          "reason": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customer_id",
+          "churn_probability",
+          "risk_level",
+          "customer_value",
+          "recommended_action",
+          "recommended_reward",
+          "reward_cost",
+          "reason"
+        ],
+        "title": "Retention"
+      },
+      "RetentionRequest": {
+        "properties": {
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "churn_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Churn Probability"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customer",
+          "churn_probability"
+        ],
+        "title": "RetentionRequest"
+      },
+      "RoiSummary": {
+        "properties": {
+          "total_customers": {
+            "type": "integer",
+            "title": "Total Customers"
+          },
+          "expected_incremental_saves": {
+            "type": "number",
+            "title": "Expected Incremental Saves"
+          },
+          "total_reward_cost": {
+            "type": "number",
+            "title": "Total Reward Cost"
+          },
+          "total_incremental_benefit": {
+            "type": "number",
+            "title": "Total Incremental Benefit"
+          },
+          "total_net_benefit": {
+            "type": "number",
+            "title": "Total Net Benefit"
+          },
+          "roi_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roi Percent"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "total_customers",
+          "expected_incremental_saves",
+          "total_reward_cost",
+          "total_incremental_benefit",
+          "total_net_benefit",
+          "roi_percent"
+        ],
+        "title": "RoiSummary"
+      },
+      "Segment": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "segment_id": {
+            "type": "integer",
+            "title": "Segment Id"
+          },
+          "customer_segment": {
+            "type": "string",
+            "title": "Customer Segment"
+          },
+          "segment_profile": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Segment Profile"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customer_id",
+          "segment_id",
+          "customer_segment",
+          "segment_profile"
+        ],
+        "title": "Segment"
+      },
+      "Strategy": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "churn_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Churn Probability"
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Risk Level"
+          },
+          "customer_value": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Customer Value"
+          },
+          "recommended_action": {
+            "type": "string",
+            "title": "Recommended Action"
+          },
+          "recommended_reward": {
+            "type": "string",
+            "title": "Recommended Reward"
+          },
+          "reward_cost": {
+            "type": "number",
+            "title": "Reward Cost"
+          },
+          "reason": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason"
+          },
+          "segment_id": {
+            "type": "integer",
+            "title": "Segment Id"
+          },
+          "customer_segment": {
+            "type": "string",
+            "title": "Customer Segment"
+          },
+          "segment_profile": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Segment Profile"
+          },
+          "predicted_churn": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "title": "Predicted Churn"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customer_id",
+          "churn_probability",
+          "risk_level",
+          "customer_value",
+          "recommended_action",
+          "recommended_reward",
+          "reward_cost",
+          "reason",
+          "segment_id",
+          "customer_segment",
+          "segment_profile",
+          "predicted_churn",
+          "model_name"
+        ],
+        "title": "Strategy"
+      },
+      "ValidationErrorResponse": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssue"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ValidationErrorResponse"
+      },
+      "ValidationIssue": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Loc"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Msg"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationIssue"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Operations"
+    },
+    {
+      "name": "Model results"
+    },
+    {
+      "name": "Retention"
+    }
+  ]
+}

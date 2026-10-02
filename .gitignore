@@ -9,3 +9,8 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 *.ipynb
+
+# Local serving environment and generated model artifacts
+.venv/
+artifacts/
+.env
