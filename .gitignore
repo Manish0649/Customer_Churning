@@ -1,7 +1,11 @@
 
 # Dataset files (keep locally, do not push to GitHub)
 dataset/*.csv
-
 # Python cache files
 __pycache__/
 *.py[cod]
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+*.ipynb
